@@ -1,0 +1,10 @@
+%主函数：
+Dz0=Dz_int(120,180,3.5,6.0);
+subplot(1,2,1);
+Z=Dz_int(120,180,3.5,6.0);
+subplot(1,2,1);
+plot_3D;
+Z=Yee_dz(10,0.1,120,180,3.5,6);
+subplot(1,2,2);
+subplot(1,2,2);
+plot_3D
