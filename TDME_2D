@@ -1,0 +1,100 @@
+# Initialization of Dz
+import numpy as np
+
+def Dz0(Nx,Ny,x0,y0):
+    Dz = np.zeros((Nx,Ny))
+    for i in range(Nx):
+        for j in range(Ny):
+            Dz[i][j] = np.sin(5*(j/10-x0))*np.exp(-((j/10-x0)/2.75)**10-((i/10-y0)/2)**2)
+    return Dz
+
+D = Dz0(10,10,2,2)
+print(D)
+
+
+# Change of Dz
+import numpy as np
+
+def Yee(Dz,Hx,Hy,t,dt,Nx,Ny,x0,y0):
+    """"
+    #Hx = np.zeros((Nx, Ny))
+    #Hy = np.zeros((Nx, Ny))
+    for i in range(Nx):
+        for j in range(Ny):
+            Dz[i][j] = np.sin(5*(j/10-x0))*np.exp(-((j/10-x0-0*dt)/2.75)**10-((i/10-y0)/2)**2)
+
+    #Hx = Dz
+    #Hy = Dz
+    #for Time in range(int(t/dt)):
+    """
+    for i in range(Nx-1,0,-1):
+        for j in range(Ny-1,0,-1):
+            Dz[i][j] = Dz[i][j] + 0.5 * (Hy[i][j] - Hy[i-1][j] - Hx[i][j]+ Hx[i][j - 1])
+
+    for i in range(Nx-1,0,-1):
+        for j in range(Ny-2,-1,-1):
+            Hx[i][j] = Hx[i][j] + 0.5 * (Dz[i][j] - Dz[i][j+1])
+
+    for i in range(Nx-2,-1,-1):
+        for j in range(Ny-1,0,-1):
+            Hy[i][j] = Hy[i][j] + 0.5 * (Dz[i+1][j]-Dz[i][j])
+    return Dz,Hx,Hy
+
+# Plot and animation
+import matplotlib as mpl
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import FuncAnimation
+import Yee_dz as Yz
+import init
+
+fig = plt.figure(figsize=(10, 10))
+# Hx = np.zeros((Nx, Ny))
+# Hy = np.zeros((Nx, Ny))
+Nx = 201
+Ny = 201
+Dz0 = init.Dz0(Nx,Ny,10,10)
+Hx0 = Dz0
+Hy0 = np.zeros((Nx, Ny))
+############
+
+Dz_data = []
+Hx_data = []
+Hy_data = []
+Dz_data.append(Dz0)
+Hx_data.append(Hx0)
+Hy_data.append(Hy0)
+
+"""
+def init():
+    x, y = np.mgrid[-0:20:201j, -0:20:201j]
+    ax.set_xlim(0, 20)  #设置x轴的范围pi代表3.14...圆周率，
+    ax.set_ylim(0, 20)  #设置y轴的范围
+    return ln,               #返回曲线
+"""
+
+def update(i):
+    dt = 0.1
+    ax = fig.add_subplot(111, projection='3d')
+    x, y = np.mgrid[-0:20:201j, -0:20:201j]
+    Dzm, Hxm, Hym = Yz.Yee(Dz_data[i],Hx_data[i],Hy_data[i],i*dt, dt, 201, 201, 10, 10)
+    Dz_data.append(Dzm)
+    Hx_data.append(Hxm)
+    Hy_data.append(Hym)
+    ax.plot_surface(x,y,Dz_data[i], rstride=2, cstride=1, cmap=plt.cm.Spectral)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    ax.view_init(elev=0,azim=0)# change the view angle
+    return ax
+
+if __name__ == '__main__':
+    fig = plt.figure(figsize=(10, 10))
+    # FuncAnimation every time will use "update"
+    anim = FuncAnimation(fig, update, frames=np.arange(0, 100, 1), interval=10)
+    plt.show()
+
+
+
+
